@@ -19,14 +19,28 @@ from PIL import Image
 
 def get_input_values():
     # 入力項目
-    print('検索開始日付(YYYYMMDD)：')
-    start_data = input()
-    print('検索終了日付(YYYYMMDD)：')
-    end_data = input()
     print('検索Twitterアカウント名：')
-    tiwtter_user_name = input()
+    twitter_user_name = input()
 
-    return tiwtter_user_name, start_data, end_data
+    input_start_date = None
+    input_end_date = None
+    try:
+        print('検索開始日付(YYYYMMDD)：')
+        input_start_date = input()
+        input_start_date = datetime.datetime.strptime(input_start_date, "%Y%m%d").strftime("%Y-%m-%d")
+    except:
+        print('検索開始日付(YYYYMMDD)が不正です。')
+        return twitter_user_name, None, None
+
+    try:
+        print('検索終了日付(YYYYMMDD)：')
+        input_end_date = input()
+        input_end_date = datetime.datetime.strptime(input_end_date, "%Y%m%d").strftime("%Y-%m-%d")
+    except:
+        print('検索終了日付(YYYYMMDD)が不正です。')
+        return twitter_user_name, None, None
+
+    return twitter_user_name, input_start_date, input_end_date
 
 
 def start_chrome():
@@ -256,8 +270,10 @@ def execute_search():
 
 if __name__ == '__main__':
     # 入力
-    # user_name, start_data, end_data = get_input_values()
-    user_name, start_data, end_data = "mahoyaku_info", "2020-10-01", "2020-10-30"
+    user_name, start_data, end_data = get_input_values()
+    # user_name, start_data, end_data = "mahoyaku_info", "2020-10-01", "2020-10-30"
+    if start_data is None or end_data is None:
+        exit()
 
     # selenium生成
     search_url = 'https://twitter.com/search?q=from%3A{}%20since%3A{}%20until%3A{}%20include%3Aretweets%20include%3Anativeretweets%20-filter%3Areplies%20-filter%3Aretweets&src=typed_query'.format(
@@ -277,3 +293,4 @@ if __name__ == '__main__':
 
     driver.close()
     driver.quit()
+    print('success!!')
