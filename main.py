@@ -40,14 +40,14 @@ def get_input_values():
 
 def start_chrome():
     options = webdriver.ChromeOptions()
-    # options.add_argument('--headless')
+    options.add_argument('--headless')
 
     os_type = platform.system()
     if os_type == 'Darwin':
         driver = webdriver.Chrome(options=options)  # ローカルテスト用
 
     else:
-        driver = webdriver.Chrome(options=options, executable_path='.\\msedgedriver.exe')
+        driver = webdriver.Edge(executable_path='.\\msedgedriver.exe')
 
     return driver
 
