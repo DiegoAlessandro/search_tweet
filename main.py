@@ -45,7 +45,7 @@ def start_chrome():
         driver = webdriver.Chrome(options=options, executable_path='driver/mac/chromedriver')  # ローカルテスト用
 
     else:
-        driver = webdriver.Edge(executable_path='.\\msedgedriver.exe')
+        driver = webdriver.Chrome(options=options, executable_path='driver/mac/chromedriver')  # ローカルテスト用
 
     return driver
 
