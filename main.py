@@ -1,20 +1,15 @@
-import os
-
 import requests
 from bs4 import BeautifulSoup as BS
 from selenium import webdriver
-import chromedriver_binary  # Adds chromedriver binary to path
-from selenium.webdriver.chrome.options import Options
 import platform
 import openpyxl
 import time
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import datetime
 import urllib.parse
 from PIL import Image
+import datetime
 
 
 def get_input_values():
@@ -52,8 +47,7 @@ def start_chrome():
         driver = webdriver.Chrome(options=options)  # ローカルテスト用
 
     else:
-        # o.binary_location = '/usr/bin/chromium-browser'
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(options=options, executable_path='.\\msedgedriver.exe')
 
     return driver
 
@@ -271,12 +265,11 @@ def execute_search():
 if __name__ == '__main__':
     # 入力
     user_name, start_data, end_data = get_input_values()
-    # user_name, start_data, end_data = "mahoyaku_info", "2020-10-01", "2020-10-30"
     if start_data is None or end_data is None:
         exit()
 
     # selenium生成
-    search_url = 'https://twitter.com/search?q=from%3A{}%20since%3A{}%20until%3A{}%20include%3Aretweets%20include%3Anativeretweets%20-filter%3Areplies%20-filter%3Aretweets&src=typed_query'.format(
+    search_url = 'https://twitter.com/search?q=from%3A{}%20since%3A{}%20until%3A{}%20include%3Aretweets%20include%3Anativeretweets%20-filter%3Areplies%20-filter%3Aretweets&src=typed_query&f=live'.format(
         user_name, start_data, end_data)
     print(search_url)
     driver = start_chrome()
@@ -284,6 +277,7 @@ if __name__ == '__main__':
 
     # 検索
     search_result = execute_search()
+    print('件数：{}'.format(len(search_result)))
 
     # Excel出力
     exec_datetime = datetime.datetime.now().strftime("%Y年%m月%d日")
