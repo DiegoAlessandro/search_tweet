@@ -1,0 +1,15 @@
+beautifulsoup4==4.9.3
+bs4==0.0.1
+certifi==2020.6.20
+chardet==3.0.4
+chromedriver-binary==85.0.4183.87.0
+et-xmlfile==1.0.1
+idna==2.10
+jdcal==1.4.1
+lxml==4.5.2
+openpyxl==3.0.5
+Pillow==7.2.0
+requests==2.24.0
+selenium==3.141.0
+soupsieve==2.0.1
+urllib3==1.25.10
