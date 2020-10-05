@@ -41,10 +41,8 @@ def get_input_values():
 def start_chrome():
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
-
-    os_type = platform.system()
-    if os_type == 'Darwin':
-        driver = webdriver.Chrome(options=options)  # ローカルテスト用
+    if platform.system() == 'Darwin':
+        driver = webdriver.Chrome(options=options, executable_path='driver/mac/chromedriver')  # ローカルテスト用
 
     else:
         driver = webdriver.Edge(executable_path='.\\msedgedriver.exe')
@@ -70,7 +68,7 @@ def set_scroll(driver):
 def download_image(image_url, timeout=10):
     response = requests.get(image_url, allow_redirects=False, timeout=timeout)
     if response.status_code != 200:
-        e = Exception("HTTP status: " + response.status_code)
+        e = Exception("HTTP status: " + str(response.status_code))
         raise e
 
     content_type = response.headers["content-type"]
@@ -193,9 +191,9 @@ def do_scrape(driver):
         # ツイート種別
         tweet_type = ''
         if t.article.div.div.div.contents[1].contents[1].contents[1].contents[1].div is not None:
-            if t.article.div.div.div.contents[1].contents[1].contents[1].contents[
-                1].div.div.div.div.span == "引用ツイート":
-                tweet_type = "リツイート"
+            retweet_div = t.article.div.div.div.contents[1].contents[1].contents[1].contents[1].div.div.div.div.span
+            if retweet_div is not None:
+                tweet_type = "リツイート" if retweet_div.text == '引用ツイート' else 'オーガニックツイート'
             else:
                 tweet_type = "オーガニックツイート"
         else:
@@ -214,7 +212,9 @@ def do_scrape(driver):
             if t.article.div.div.div.contents[1].contents[1].contents[1].contents[
                 1].div.div.div.div.div is not None:
                 if len(t.article.div.div.div.contents[1].contents[1].contents[1].contents[
-                           1].div.div.div.div.div.contents) > 0:
+                           1].div.div.div.div.div.contents) > 0 and \
+                        t.article.div.div.div.contents[1].contents[1].contents[1].contents[
+                            1].div.div.div.div.div.contents[1].div is not None:
                     images_url_div = \
                         t.article.div.div.div.contents[1].contents[1].contents[1].contents[
                             1].div.div.div.div.div.contents[
@@ -225,9 +225,11 @@ def do_scrape(driver):
 
         # リツイート数
         retweet_num = t.article.div.div.div.contents[1].contents[1].contents[1].contents[2].contents[1].text
+        retweet_num = retweet_num if retweet_num != '' else 0
 
         # いいね数
         like_num = t.article.div.div.div.contents[1].contents[1].contents[1].contents[2].contents[2].text
+        like_num = like_num if like_num != '' else 0
 
         yield {tweet_id: {"tweet_id": tweet_id, "user_name": user_name, "tweet_type": tweet_type,
                           "tweet_time": tweet_time,
