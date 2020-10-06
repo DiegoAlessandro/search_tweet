@@ -40,7 +40,7 @@ def get_input_values():
 
 def start_chrome():
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     if platform.system() == 'Darwin':
         driver = webdriver.Chrome(options=options, executable_path='driver/mac/chromedriver')  # ローカルテスト用
 
@@ -166,7 +166,7 @@ def generate_excel(export_file_name, exec_date, search_user_name, data):
 def do_scrape(driver):
     # 全ツイートを表示するまでスクロール
     # 最初のページのツイートを取得する
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 120)
     element = wait.until(EC.presence_of_element_located((By.XPATH, '//div[@aria-label="タイムライン: タイムラインを検索"]')))
     soup = BS(driver.page_source, 'lxml')
     section = soup.find('div', attrs={'aria-label': "タイムライン: タイムラインを検索"})
@@ -240,6 +240,8 @@ def do_scrape(driver):
 
 def execute_search():
     search_result = {}
+    step_value = driver.execute_script("return document.body.scrollHeight") * 0.9
+    current_height = 0
     while True:
         # Get scroll height
         last_height = driver.execute_script("return document.body.scrollHeight")
@@ -249,14 +251,16 @@ def execute_search():
             search_result.update(tweet_rs)
 
         # Scroll down to bottom
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        current_height += step_value
+        driver.execute_script("window.scrollBy(0, {});".format(step_value))
         time.sleep(1)
 
         # Calculate new scroll height and compare with last scroll height
-        if driver.execute_script("return document.body.scrollHeight") == last_height:
+        max_scroll_height = driver.execute_script("return document.body.scrollHeight")
+        if current_height >= last_height:
             break
 
-        last_height = driver.execute_script("return document.body.scrollHeight")
+        last_height = max_scroll_height
 
     no_duplicate = list(set(search_result.keys()))
     r = []
