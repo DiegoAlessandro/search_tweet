@@ -242,12 +242,17 @@ def execute_search():
     search_result = {}
     step_value = driver.execute_script("return document.body.scrollHeight") * 0.9
     current_height = 0
-    while True:
-        # Get scroll height
-        last_height = driver.execute_script("return document.body.scrollHeight")
+    tweet_ids_index = []
+    no_refresh_height_count = 0
+    temp_height = 0
+    while no_refresh_height_count < 20:
 
         # スクレイピングの実行
         for tweet_rs in do_scrape(driver):
+            t_id = list(tweet_rs.keys())[0]
+            if t_id in tweet_ids_index:
+                continue
+            tweet_ids_index.append(t_id)
             search_result.update(tweet_rs)
 
         # Scroll down to bottom
@@ -257,19 +262,22 @@ def execute_search():
 
         # Calculate new scroll height and compare with last scroll height
         max_scroll_height = driver.execute_script("return document.body.scrollHeight")
-        if current_height >= last_height:
-            break
+        print("current_height:{}/{}".format(current_height, max_scroll_height))
 
-        last_height = max_scroll_height
+        if max_scroll_height == temp_height:
+            no_refresh_height_count = no_refresh_height_count + 1
+        else:
+            temp_height = max_scroll_height
+            no_refresh_height_count = 0
 
-    no_duplicate = list(set(search_result.keys()))
     r = []
-    [r.append(search_result[i]) for i in no_duplicate]
+    [r.append(search_result[i]) for i in tweet_ids_index]
     return r
 
 
 if __name__ == '__main__':
     # 入力
+    # user_name, start_data, end_data = 'mahoyaku_info', '2019-07-01', '2019-11-30'
     user_name, start_data, end_data = get_input_values()
     if start_data is None or end_data is None:
         exit()
