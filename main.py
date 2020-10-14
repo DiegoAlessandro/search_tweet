@@ -135,7 +135,7 @@ def generate_excel(export_file_name, exec_date, search_user_name, data):
         ws.cell(row_num, 2, d.get('tweet_time'))
         ws.cell(row_num, 3, d.get('tweet_type'))
         ws.cell(row_num, 4, d.get('tweet_user_name'))
-        ws.cell(row_num, 5, d.get('tweet_postText'))
+        ws.cell(row_num, 5, d.get('tweet_post_text'))
         ws.cell(row_num, 6, '')
         ws.cell(row_num, 7, d.get('retweet_num'))
         ws.cell(row_num, 8, d.get('like_num'))
@@ -204,7 +204,7 @@ def do_scrape(driver):
             t.article.div.div.div.contents[1].contents[1].contents[0].contents[0].div.div.div.div.contents[0].text
 
         # 投稿テキスト
-        tweet_postText = t.article.div.div.div.contents[1].contents[1].contents[1].contents[0].text
+        tweet_post_text = t.article.div.div.div.contents[1].contents[1].contents[1].contents[0].text
 
         # 投稿画像
         image_urls = []
@@ -233,7 +233,7 @@ def do_scrape(driver):
 
         yield {tweet_id: {"tweet_id": tweet_id, "user_name": user_name, "tweet_type": tweet_type,
                           "tweet_time": tweet_time,
-                          "tweet_user_name": tweet_user_name, "tweet_postText": tweet_postText,
+                          "tweet_user_name": tweet_user_name, "tweet_post_text": tweet_post_text,
                           "image_urls": image_urls, "retweet_num": retweet_num, "like_num": like_num,
                           "tweet_url": tweet_url}}
 
@@ -245,7 +245,7 @@ def execute_search():
     tweet_ids_index = []
     no_refresh_height_count = 0
     temp_height = 0
-    while no_refresh_height_count < 20:
+    while no_refresh_height_count < 15:
 
         # スクレイピングの実行
         for tweet_rs in do_scrape(driver):
@@ -272,13 +272,23 @@ def execute_search():
 
     r = []
     [r.append(search_result[i]) for i in tweet_ids_index]
+
+    # 重複しているツイート内容をチェック
+    tweet_post_index = []
+    fix_list = []
+    for i in r:
+        text = i.get('tweet_post_text').strip().replace('\n', '').replace(' ', '').replace('　', '')
+        if text not in tweet_post_index:
+            tweet_post_index.append(text)
+            fix_list.append(i)
+
     return r
 
 
 if __name__ == '__main__':
     # 入力
-    # user_name, start_data, end_data = 'mahoyaku_info', '2019-07-01', '2019-11-30'
-    user_name, start_data, end_data = get_input_values()
+    user_name, start_data, end_data = 'mahoyaku_info', '2019-07-01', '2019-11-30'
+    # user_name, start_data, end_data = get_input_values()
     if start_data is None or end_data is None:
         exit()
 
