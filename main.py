@@ -287,8 +287,8 @@ def execute_search():
 
 if __name__ == '__main__':
     # 入力
-    user_name, start_data, end_data = 'mahoyaku_info', '2019-07-01', '2019-11-30'
-    # user_name, start_data, end_data = get_input_values()
+    # user_name, start_data, end_data = 'mahoyaku_info', '2019-07-01', '2019-11-30'
+    user_name, start_data, end_data = get_input_values()
     if start_data is None or end_data is None:
         exit()
 
